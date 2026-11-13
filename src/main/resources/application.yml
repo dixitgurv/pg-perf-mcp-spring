@@ -1,0 +1,36 @@
+# Runs as a stdio MCP server: the client launches the jar and talks JSON-RPC over stdin/stdout.
+# Nothing else may write to stdout, so the banner is off and logs go to stderr (logback-spring.xml).
+spring:
+  main:
+    banner-mode: off
+    web-application-type: none
+  application:
+    name: pg-perf-mcp
+
+  datasource:
+    url: ${PG_PERF_JDBC_URL:}
+    username: ${PG_PERF_USER:}
+    password: ${PG_PERF_PASSWORD:}
+    hikari:
+      maximum-pool-size: 2
+      # Layer 1 of the read-only design: every session refuses writes inside Postgres itself.
+      connection-init-sql: SET default_transaction_read_only = on
+      read-only: true
+      data-source-properties:
+        ApplicationName: pg-perf-mcp
+
+  ai:
+    mcp:
+      server:
+        name: pg-perf
+        version: 0.1.0
+        type: sync
+        stdio: true
+        instructions: >
+          Read-only PostgreSQL performance tools. A good order of work:
+          1. database_overview to see cache hit rate, memory settings and connection load.
+          2. slow_queries to find what costs the most time.
+          3. explain_query on a suspect query: it returns the plan's hottest nodes and rule-based findings.
+          4. table_health, unused_indexes and redundant_indexes for structural problems.
+          Findings come from fixed rules in code. Explain them to the user and propose fixes,
+          but present DDL as a suggestion to review, never as something already applied.
