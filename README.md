@@ -99,6 +99,20 @@ Then register it with your MCP client. For Claude Desktop, in `claude_desktop_co
 }
 ```
 
+For Claude Code:
+
+```bash
+claude mcp add pg-perf --env PG_PERF_JDBC_URL=jdbc:postgresql://localhost:5432/mydb --env PG_PERF_USER=perf_reader --env PG_PERF_PASSWORD=... -- java -jar /path/to/pg-perf-mcp-spring-0.1.0.jar
+```
+
+### Agent skill
+
+The server gives the agent tools; [`skills/postgres-performance`](skills/postgres-performance/SKILL.md) tells it when and how to use them: which tool to start with for each kind of question, how to read the findings, when a standard fix is wrong, and how to recover from each error. To install it for Claude Code:
+
+```bash
+cp -r skills/postgres-performance ~/.claude/skills/
+```
+
 For a fifth layer of safety, connect as a role that can only read:
 
 ```sql
